@@ -3,7 +3,6 @@ from datetime import datetime
 from geoalchemy2.types import Geometry
 from flask_restful import fields
 from geoalchemy2.elements import WKTElement
-from statsmodels.tsa.statespace.varmax import VARMAX
 from random import random
 from sqlalchemy.ext.declarative import declared_attr
 resource_fields = {
@@ -146,19 +145,20 @@ class ObjectTrajactoryModel(TrajectoryMixin,db.Model):
         predict_num = 5
         gps_points = self.gps_points()
         # data = [[p["long"],p["lat"]] for p in gps_points]
-        data = list()
-        for i in range(100):
-            v1 = random()
-            v2 = v1 + random()
-            row = [v1, v2]
-            data.append(row)
-        model = VARMAX(data, order=(1, 1))
-        model_fit = model.fit(disp=False)
+        # data = list()
+        # for i in range(100):
+        #     v1 = random()
+        #     v2 = v1 + random()
+        #     row = [v1, v2]
+        #     data.append(row)
+        # model = VARMAX(data, order=(1, 1))
+        # model_fit = model.fit(disp=False)
 
-        yhat = model_fit.forecast(predict_num)
+        # yhat = model_fit.forecast(predict_num)
         
-        return {"object_id":self.lastappeared.object_id,"gps_points": [{"long":p[0],"lat":p[1]} for p in yhat]}
-        
+        # return {"object_id":self.lastappeared.object_id,"gps_points": [{"long":p[0],"lat":p[1]} for p in yhat]}
+        return {"object_id":self.lastappeared.object_id,"gps_points": [{"long":1.0,"lat":2.0}]}
+
         
     
 

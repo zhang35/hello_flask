@@ -7,7 +7,6 @@ from datetime import datetime
 from geoalchemy2.types import Geometry
 from flask_restful import fields
 from geoalchemy2.elements import WKTElement
-from statsmodels.tsa.statespace.varmax import VARMAX
 from random import random
 class ExceptionInfoModel(db.Model):
     __tablename__ = 'exceptioninfo'
