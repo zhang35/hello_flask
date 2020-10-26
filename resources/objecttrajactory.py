@@ -1,5 +1,5 @@
 from flask import request
-from database.postsqldb.models import ObjectTrajactoryModel
+from database.postsqldb.models import ObjectTrajactoryModel,ImportantRegion
 from datetime import datetime, timedelta
 from database.postsqldb.db import db
 from sqlalchemy.sql import select, func
@@ -13,6 +13,13 @@ class ObjectTrajactoryApi(Resource):
     objectTrajactory = ObjectTrajactoryModel.query.get(id)
     return objectTrajactory.dictRepr(),200
 
+class ObjectTrajactoryAbnormalPositonApi(Resource):
+  def get(self,id):
+    objectTrajactory = ObjectTrajactoryModel.query.get(id)
+    importantRegions = ImportantRegion.query.filter(func.ST_Intersects(ImportantRegion.geom,objectTrajactory.gps_line)).all()
+    result = objectTrajactory.dictRepr()
+    result["important_regions"] = [r.dictRepr() for r in  importantRegions]
+    return result,200
 
 class ObjectTrajactoryPredictorApi(Resource):
   
