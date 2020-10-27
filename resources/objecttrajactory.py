@@ -1,5 +1,5 @@
 from flask import request
-from database.postsqldb.models import ObjectTrajactoryModel
+from database.postsqldb.models import ObjectTrajactoryModel,ImportantRegion,LastappearedModel
 from datetime import datetime, timedelta
 from database.postsqldb.db import db
 from sqlalchemy.sql import select, func
@@ -13,13 +13,41 @@ class ObjectTrajactoryApi(Resource):
     objectTrajactory = ObjectTrajactoryModel.query.get(id)
     return objectTrajactory.dictRepr(),200
 
-
-class ObjectTrajactoryPredictorApi(Resource):
-  
-
+class ObjectTrajactoryAbnormalPositonApi(Resource):
   def get(self,id):
     objectTrajactory = ObjectTrajactoryModel.query.get(id)
-    return {"currenttrajectory":objectTrajactory.dictRepr(),"futruetrajectorys":objectTrajactory.precictTrajectory()},200
+    importantRegions = ImportantRegion.query.filter(func.ST_Intersects(ImportantRegion.geom,objectTrajactory.gps_line)).all()
+    result = objectTrajactory.dictRepr()
+    result["important_regions"] = [r.dictRepr() for r in  importantRegions]
+    return result,200
+
+class ObjectTrajactoryPredictorFromSelfApi(Resource):
+  """
+  """
+  def get(self,id):
+    
+    objectTrajactory = ObjectTrajactoryModel.query.get(id)
+    
+    sub = LastappearedModel.query.filter_by(object_id=objectTrajactory.lastappeared.object_id).subquery()
+    row = ObjectTrajactoryModel.query.join(sub,sub.c.id == ObjectTrajactoryModel.lastappeared_id).filter(ObjectTrajactoryModel.lastappeared_id!=id).with_entities(ObjectTrajactoryModel,func.ST_FrechetDistance(ObjectTrajactoryModel.gps_line,func.ST_AsEWKT(objectTrajactory.gps_line)).label('similar')).order_by(asc('similar')).first()
+
+    if row is None:
+      return "没有该目标的历史轨迹，无法预测"
+    else:
+      r,s = row
+      return r.dictRepr(similar=1.0/(s+1))
+class ObjectTrajactoryPredictorFromAllApi(Resource):
+  def get(self,id):
+    
+    objectTrajactory = ObjectTrajactoryModel.query.get(id)
+    
+    row = ObjectTrajactoryModel.query.filter(ObjectTrajactoryModel.lastappeared_id!=id).with_entities(ObjectTrajactoryModel,func.ST_FrechetDistance(ObjectTrajactoryModel.gps_line,func.ST_AsEWKT(objectTrajactory.gps_line)).label('similar')).order_by(asc('similar')).first()
+
+    if row is None:
+      return "没有用于预测的历史轨迹"
+    else:
+      r,s = row
+      return r.dictRepr(similar=1.0/(s+1))
 
 class ObjectTrajactorysApi(Resource):
   
@@ -41,6 +69,7 @@ class SimilarObjectTrajactorysApi(Resource):
     objectTrajactory = ObjectTrajactoryModel.query.get(id)
     rows = ObjectTrajactoryModel.query.filter(ObjectTrajactoryModel.lastappeared_id!=id).with_entities(ObjectTrajactoryModel,func.ST_HausdorffDistance(ObjectTrajactoryModel.gps_line,func.ST_AsEWKT(objectTrajactory.gps_line)).label('similar')).order_by(asc('similar')).limit(similar_num).all()
     return  [o.dictRepr(similar=1.0/(s+1)) for o,s in rows]
+
 
 
 class ObjectTrajectoryLastNminutesApi(Resource):

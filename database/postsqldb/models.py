@@ -5,6 +5,7 @@ from flask_restful import fields
 from geoalchemy2.elements import WKTElement
 from random import random
 from sqlalchemy.ext.declarative import declared_attr
+import json
 resource_fields = {
     'id': fields.Integer,
     'name': fields.String,
@@ -201,3 +202,13 @@ class ExceptionTypeModel(db.Model):
     exceptiontype = db.Column(db.String())
     def dictRepr(self):
         return {"lastappeared_id":self.lastappeared_id,"exceptiontype":self.exceptiontype}
+
+
+class ImportantRegion(db.Model):
+    __tablename__ = 'importantregion'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50),unique=True, nullable=False)
+    geom = db.Column(Geometry(geometry_type='POLYGON', srid=4326),nullable=False)
+    def dictRepr(self):
+        p = json.loads(db.session.scalar(self.geom.ST_AsGeoJSON ()))["coordinates"]
+        return {"id":self.id,"name":self.name,"gps_points":[{'long':s[0],'lat':s[1]}for r in p for s in r]}
