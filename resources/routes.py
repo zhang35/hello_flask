@@ -3,10 +3,10 @@ from .car import CarsApi,CarApi
 from .neighborhood import NeighborhoodApi,NeighborhoodsApi,NeighborhoodAreaApi
 from .geometries3 import Geometries3sApi
 from .lastappeared import LastappearedApi,LastappearedApiByObjectID,LastappearedsApi,LastappearedsFilterApi
-from .objecttrajactory import ObjectTrajactorysApi,ObjectTrajactoryApi,ObjectTrajactoryPredictorApi,SimilarObjectTrajactorysApi
+from .objecttrajactory import ObjectTrajactorysApi,ObjectTrajactoryApi,SimilarObjectTrajactorysApi
 from .machinetype import MachinetypesApi,MachinetypeStatisticsApi
 from .exceptiontype import ExceptionTypesApi
-from .objecttrajactory import ObjectTrajactorysApi,ObjectTrajactoryAbnormalPositonApi,ObjectTrajactoryApi,ObjectTrajactoryPredictorApi,SimilarObjectTrajactorysApi,ObjectTrajectoryLastNminutesApi
+from .objecttrajactory import ObjectTrajactorysApi,ObjectTrajactoryAbnormalPositonApi,ObjectTrajactoryApi,ObjectTrajactoryPredictorFromSelfApi,ObjectTrajactoryPredictorFromAllApi,SimilarObjectTrajactorysApi,ObjectTrajectoryLastNminutesApi
 from .exceptioninfo import ExceptionInfosApi
 from .trajectorypreprocess.trajectorypreprocess import ObjectTrajactoryFilterApi,ObjectTrajactorySegmentsApi
 def initialize_routes(api):
@@ -31,7 +31,10 @@ def initialize_routes(api):
     api.add_resource(ObjectTrajactorySegmentsApi,'/objecttrajactoryaftersegments/<int:id>')
     api.add_resource(ObjectTrajactoryAbnormalPositonApi,'/objecttrajactoryabnormalposition/<int:id>')
     
-    api.add_resource(ObjectTrajactoryPredictorApi,'/objecttrajactorypredictor/<id>')
+    api.add_resource(ObjectTrajactoryPredictorFromSelfApi,'/objecttrajactorypredictor/<id>')
+
+    api.add_resource(ObjectTrajactoryPredictorFromAllApi,'/gqobjecttrajactorypredictor/<id>')
+    
     api.add_resource(LastappearedsFilterApi,'/lastappearedfilter')
 
     api.add_resource(SimilarObjectTrajactorysApi,'/similarobjecttrajactorysapi/<id>')
