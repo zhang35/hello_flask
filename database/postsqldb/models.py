@@ -131,6 +131,8 @@ class TrajectoryMixin:
             gps_point["lat"] =  db.session.scalar(self.gps_line.ST_PointN(i).ST_Y())
             gps_points.append(gps_point)
         return gps_points
+    def lastmodified_time(self):
+        return datetime.fromtimestamp(db.session.scalar(self.gps_line.ST_EndPoint().ST_M())).strftime("%Y-%m-%d %H:%M:%S")
     def dictRepr(self,**kwargs):
         d = {"id":self.lastappeared_id,"gps_points":self.gps_points()}
         
