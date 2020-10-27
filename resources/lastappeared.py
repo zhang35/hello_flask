@@ -48,20 +48,29 @@ class LastappearedsApi(Resource):
 
     parser.add_argument('machinetype')
     parser.add_argument('exceptiontype')
+    parser.add_argument('date')
     args = parser.parse_args()
 
     machinetype = args['machinetype']
 
     exceptiontype = args['exceptiontype']
 
-    if machinetype is not None:
-      rows = LastappearedModel.query.join(MachineTypeModel, LastappearedModel.object_id==MachineTypeModel.object_id).filter(MachineTypeModel.machinetype.in_ (machinetype.split(",")) ).all()
-    elif exceptiontype is not None:
-      rows = LastappearedModel.query.join(ExceptionTypeModel, LastappearedModel.object_id==ExceptionTypeModel.object_id).filter(ExceptionTypeModel.exceptiontype.in_ (exceptiontype.split(",")) ).all()
-    else :
-      rows = LastappearedModel.query.all()
+    date = datetime.now().date() if args['date'] is None else datetime.strptime(args['date'], "%Y-%m-%d").date()
 
-    return  [row.dictRepr() for row in rows]
+    
+    filters = LastappearedModel.query
+
+    if machinetype is not None:
+      
+      filters = LastappearedModel.query.filter(LastappearedModel.machine_type.has(MachineTypeModel.machinetype.in_ (machinetype.split(","))))
+      
+    if exceptiontype is not None:
+      filters = filters.filter(LastappearedModel.exception_type.has(ExceptionTypeModel.exceptiontype.in_(exceptiontype.split(","))))
+
+    filters = filters.filter(LastappearedModel.lastmodified_date == date) 
+    
+
+    return  [row.dictRepr() for row in filters.all()]
   
   def post(self):
     body = request.get_json()
@@ -107,9 +116,9 @@ class LastappearedsFilterApi(Resource):
     if lastmodified_time_range is not None:
       [start,end] = lastmodified_time_range.split(",")
       if start:
-        filters = filters.filter(LastappearedModel.lastmodified_time >= datetime.strptime(start, "%Y-%m-%d %H:%M:%S"))
+        filters = filters.filter((LastappearedModel.lastmodified_date + LastappearedModel.lastmodified_time) >= datetime.strptime(start, "%Y-%m-%d %H:%M:%S"))
       if end:
-        filters = filters.filter(LastappearedModel.lastmodified_time <= datetime.strptime(end, "%Y-%m-%d %H:%M:%S"))
+        filters = filters.filter((LastappearedModel.lastmodified_date + LastappearedModel.lastmodified_time) <= datetime.strptime(end, "%Y-%m-%d %H:%M:%S"))
     
     if lastoccur_region is  not None:
       filters = filters.filter(func.ST_Within(LastappearedModel.gps_point,'SRID=4326;POLYGON(({}))'.format(lastoccur_region)))
