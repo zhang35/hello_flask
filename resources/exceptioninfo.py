@@ -62,26 +62,7 @@ class ExceptionInfoApi(Resource):
             }
             exceptionDetailList.append(exceptionDetail )
         return exceptionDetailList
-        # exceptionInfoList = [row.dictRepr() for row in exceptionInfoModel]
-        # # 如果未查到，计算异常信息
-        # if len(exceptionInfoList)==0:
-        #
-        # for exception in exceptionInfoList:
-        #     exception_type = exception["exception_type"]
-        #     start_time = exception["start_time"]
-        #     end_time = exception["end_time"]
-        #     reason = exception["reason"]
-        #     gps_points = getGpsPointsWithinTimePeriod(start_time, end_time)
-        #     exceptionDetailList.append({
-        #         "lastappeared_id" : lastappeared_id,
-        #         "exception_type": exception_type,
-        #         "start_time": start_time,
-        #         "end_time": end_time,
-        #         "reason": reason,
-        #         "gps_points": gps_points,
-        #         "lastmodified_time": lastmodified_time})
-        # rows = ExceptionInfoModel.query.filter_by(lastappeared_id=lastappeared_id)
-        # return [row.dictRepr() for row in rows]
+
     def put(self, id):
         body = request.get_json()
         body["id"] = id
