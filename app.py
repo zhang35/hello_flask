@@ -48,7 +48,7 @@ flaskadmin.initialize_admin(app)
 initialize_routes(api)
 @app.route("/")
 def home():
-    return "Hello, Flask!"
+    return "Hi, Flask!"
 @app.route("/hello/<name>")
 def hello_there(name):
     now = datetime.now()

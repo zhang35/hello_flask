@@ -19,3 +19,4 @@ database/postsqldb/trajectorypreprocess/__pycache__/trajectoryfiltermodel.cpytho
 database/postsqldb/trajectorypreprocess/__pycache__/trajectorypreprocessmodel.cpython-38.pyc
 resources/trajectorypreprocess/__pycache__/trajectorypreprocess.cpython-38.pyc
 algorithms/__pycache__/exceptionDetection.cpython-38.pyc
+algorithms/__pycache__/attributesCalculation.cpython-38.pyc
